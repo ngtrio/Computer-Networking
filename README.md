@@ -58,10 +58,6 @@
 * **传输控制协议**：Transmission Control Protocol,TCP
 * **网际协议**：Internet Protocol， IP， 定义了在路由器和端系统之间发送和接收的分组格式
 
-### 1.1.2 服务描述
-
-### 1.1.3 什么是协议
-
 ## 1.2 网络边缘
 
 ### 1.2.1 接入网
@@ -272,4 +268,146 @@ d<sub>end-end</sub> = N(d<sub>proc</sub> + d<sub>trans</sub> + d<sub>prop</sub>)
 ### 1.5.2 封装
 
 ![](./pics/数据传输.png)
+
+* 运输层收取到报文并附上附加信息 H<sub>t</sub> 构成运输层报文段
+* 网络层收取到报文段，增加源和目的端系统地址等网络层首部信息 H<sub>n</sub> 构成网络层数据报
+* 链路层收取到数据报，增加自己的链路层首部信息 H<sub>l</sub> 构成链路层帧
+* 一个分组分为 首部字段 和 **有效载荷字段**（来自上一层的分组）
+
+### 1.6 面向攻击的网络
+
+* **拒绝服务攻击**：DoS （Denial-of-Service Attack)
+
+* **分布式DOS**（Distributed DoS, DDoS)
+
+
+# 第二章：应用层
+
+## 2.1 应用层协议原理
+
+### 2.1.1 网络应用程序体系结构
+
+* **客户-服务器体系结构**：有一个总打开的主机称为服务器，服务与来自许多称为客户的主机请求。
+* **P2P体系结构**：对位于数据中心的专用服务器有最小或者没有依赖，应用程序在间断连接的主机对之间直接使用通信，其中主机对称为 **对等方**。
+
+### 2.1.2 进程通信
+
+#### 1. 客户和服务器进程
+
+对每对通信进程，一个标识为 **客户**（client），另一个表示为 **服务器**（server）。发起会话的是客户，等待联系的是服务器。
+
+#### 2. 进程与计算机网络之间的接口
+
+* **套接字**：同一台主机中应用层和运输层之间的接口，也被称为应用程序和网络之间的应用程序编程接口（Application Programming Interface, API）。
+
+#### 3. 进程寻址
+
+* 主机由 **IP地址** 标识。
+* 接收进程由 **端口号** 标识。
+
+### 2.1.3 可供应用程序使用的运输服务
+
+1. 可靠数据传输
+2. 吞吐量
+3. 定时
+4. 安全性
+
+### 2.1.4 因特网提供的运输服务
+
+#### 1. TCP服务
+
+* 面向连接的服务：应用层报文开始流动之前，TCP让客户和服务器互相交换运输层控制信息。
+* 可靠的数据传送服务：应用程序一端将字节流传进套接字时，TCP能将相同的字节流交付给接收方。
+* 拥塞控制机制：网络拥塞时，会抑制发送进程。
+* TCP加强版 **安全套接字层**（Secure Sockets Layer, SSL），SSL不是第三种运输协议，而是对TCP的一种加强。
+
+#### 2. UDP服务
+
+无握手过程，提供不可靠数据传送服务，报文可能乱序到达，无拥塞机制。
+
+#### 3. 因特网运输协议所不能提供的服务
+
+吞吐量和定时没有被提供
+
+![](./pics/应用层协议.png)
+
+
+
+### 2.1.5 应用层协议
+
+应用层协议定义了：
+
+* 交换的报文类型，例如GET POST
+* 报文类型的语法
+* 字段的信息含义
+* 何时以及如何发送报文
+
+## 2.2 Web和HTTP
+
+### 2.2.1 HTTP概况
+
+* Web的应用层协议是 **超文本传输协议**(HyperText Transfer Protocol, HTTP）
+* HTTP服务器不保存客户任何信息，所以HTTP是一个 **无状态协议**（stateless protocol）
+
+### 2.2.2 非持续连接和持续连接
+
+* **非持续连接（non-persisent connection）**：每次请求/响应是经过一个单独的TCP进行的。
+
+* **持续连接（persistent connection）**：所有请求和响应经过同一TCP进行。
+* **RTT**：（Round-Trip Time）往返时间
+
+#### 1. 采用非持续连接的HTTP
+
+![](./pics/请求接收HTML.png)
+
+三次握手，前两部分占用一个RTT
+
+总的响应时间是两个RTT加上服务器传输HTML文件的时间。
+
+#### 2. 采用持续连接的HTTP
+
+一个完整的web页面可用单个TCP连接进行传送
+
+同一服务器的多个web页面可用单个TCP连接进行传送
+
+### 2.2.3 HTTP报文格式
+
+#### 1. HTTP请求报文
+
+> GET /somedir/page.html HTTP/1.1
+> Host: www.someschool.edu
+>
+> Connection: close
+> User-agent: Mozilla/5.0
+> Accept-language: fr
+
+HTTP请求报文第一行叫作 **请求行**（request line）, 后继行叫作 **首部行**（header line）
+
+* 请求行有三个字段：
+
+  * 方法字段：GET、POST、HEAD、PUT、DELETE
+
+  * URL字段
+
+  * HTTP版本字段
+
+![](./pics/请求报文.png)
+
+#### 2. HTTP响应报文
+
+>HTTP/1.1 200 OK
+>Connection: close
+>
+>Date: Tue, 09 Aug 2011 15:44:04 GMT
+>Server: Apache/2.2.3 (CentOS)
+>Last-Modified: Tue, 09 Aug 2011 15:11:03 GMT
+>Content-Length: 6821
+>Content-Type: text/html
+>(data data data data data ...)
+
+一个初始 **状态行**（status line），6个 **首部行**（header line），然后是 **实体体**（entity body）
+
+![](./pics/响应报文.png)
+
+### 2.2.4 用户与服务器的交互：cookie
 
