@@ -14,7 +14,6 @@ while True:
         outputdata = f.read()
         header = 'HTTP/1.1 200 OK\nContent-Type: text/html; charset=utf-8'
         connectionSocket.send(header.encode())
-        # for i in range(0, len(outputdata)):
         connectionSocket.send(outputdata.encode())
         connectionSocket.close()
     except IOError:
