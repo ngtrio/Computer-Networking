@@ -411,3 +411,17 @@ HTTP请求报文第一行叫作 **请求行**（request line）, 后继行叫作
 
 ### 2.2.4 用户与服务器的交互：cookie
 
+![](./pics/cookie.png)
+
+### 2.2.5 Web缓存
+
+* **Web缓存器**（Web cache）也叫 **代理服务器**（proxy server）
+
+![](./pics/代理服务器.png)
+
+### 2.2.6 条件GET方法
+
+* **条件GET**（conditional GET）：HTTP协议的一种机制，允许缓存器证实它的对象是最新的。
+
+## 2.3 因特网中的电子邮件
+
