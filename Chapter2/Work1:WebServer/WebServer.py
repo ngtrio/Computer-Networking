@@ -1,22 +1,33 @@
 from socket import *
 
-serverSocket = socket(AF_INET, SOCK_STREAM)
-serverPort = 10086
-serverSocket.bind(('', serverPort))
-serverSocket.listen(1)
-while True:
-    print('Ready to serve...')
-    connectionSocket, addr = serverSocket.accept()
+import sys
+import _thread
+
+def getFileName(request):
+    return request.split()[1][1:]
+
+def myThread(connectionSocket, addr):
+    request = connectionSocket.recv(2048)
+    fileName = getFileName(request.decode())
     try:
-        message = connectionSocket.recv(2048).decode()
-        filename = message.split()[1]   # 请求的路径
-        f = open(filename[1:])          # 请求的文件名
-        outputdata = f.read()
-        header = 'HTTP/1.1 200 OK\nContent-Type: text/html; charset=utf-8'
-        connectionSocket.send(header.encode())
-        connectionSocket.send(outputdata.encode())
-        connectionSocket.close()
+        with open(fileName, 'r') as f:
+            outPutData = f.read()
+            connectionSocket.send('''HTTP/1.1 200 OK\r\n
+                                     Content-Type: text/html\r\n'''.encode())
+            connectionSocket.send(outPutData.encode())
+        print('{} Request success'.format(addr))
     except IOError:
-        header = 'HTTP/1.1 404 Not Found\nContent-Type: text/html; charset=utf-8'
-        connectionSocket.send(header.encode())
+        print('{} request fail'.format(addr))
+        connectionSocket.send('HTTP/1.1 404 NOT FOUND\r\n'.encode())
+    finally:
         connectionSocket.close()
+
+serverSocket = socket(AF_INET, SOCK_STREAM)
+serverPort = int(sys.argv[1])
+serverSocket.bind(('', serverPort))
+serverSocket.listen(10)
+print('The server is ready to receive...')
+while True:
+    connectionSocket, addr = serverSocket.accept()
+    _thread.start_new_thread(myThread, (connectionSocket, addr))
+
