@@ -1,4 +1,4 @@
-# TCP笔记
+# 传输层
 
 ## TCP头部结构
 ![](./pics/TCPheader.png)
@@ -50,3 +50,15 @@
   **为什么需要四次挥手？**
 ## TCP状态转换
 ![](pics/TCP状态转换.png)
+建立连接：
+* TCP初始化时状态为`CLOSED`, 如果是主动打开方会快速发送一个SYN转换为`SYN_SENT`状态，如果是被动打开方，会快速转换为`LISTEN`状态。
+* `LISTEN`状态收到SYN后，返回一个SYN+ACK，进入`SYN_RCVD`状态。
+* `SYN_SENT`状态收到SYN_ACK，发送一个ACK，进入`ESTABLISHED`状态。
+* `SYN_RCVD`状态收到ACK，进入`ESTABLISHED`状态。
+
+同时建立连接：
+* 两方同时发送SYN，由`CLOSED`状态进入`SYN_SENT`状态。
+* 两方接收到SYN后发送SYN+ACK，由`SYN_SENT`状态进入`SYN_RCVD`状态。
+* 两方接收到SYN+ACK，发送ACK，`SYN_RCVD`进入`ESTABLISHED`状态。
+
+关闭连接：
