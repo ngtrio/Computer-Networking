@@ -49,7 +49,8 @@
   （以上的报文段中都可带选项）   
   **为什么需要四次挥手？**
 ## TCP状态转换
-![](pics/TCP状态转换.png)
+![](pics/TCP状态转换.png)  
+
 建立连接：
 * TCP初始化时状态为`CLOSED`, 如果是主动打开方会快速发送一个SYN转换为`SYN_SENT`状态，如果是被动打开方，会快速转换为`LISTEN`状态。
 * `LISTEN`状态收到SYN后，返回一个SYN+ACK，进入`SYN_RCVD`状态。
