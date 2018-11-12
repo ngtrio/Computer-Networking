@@ -63,3 +63,25 @@
 * 两方接收到SYN+ACK，发送ACK，`SYN_RCVD`进入`ESTABLISHED`状态。
 
 关闭连接：
+![](pics/TCP关闭.png)
+* 主动关闭方和被动关闭方都从`ESTABLISHED`状态开始。
+* 主动关闭方发送一个FIN，`ESTABLISHED`->`FIN_WAIT_1`
+* 被动关闭方收到FIN，回复一个此FIN的ACK，`ESTABLISHED`->`CLOSE_WAIT`
+* 主动关闭方收到ACK，`FIN_WAIT_1`->`FIN_WAIT_2`
+* 被动关闭方发送一个FIN，`CLOSE_WAIT`->`LAST_ACK`
+* 主动关闭方收到FIN，回复一个此FIN的ACK，`FIN_WAIT_2`->`TIME_WAIT`
+* 被动关闭方收到ACK，`LAST_ACK`->`CLOSED`
+  
+同时关闭：
+* 主动关闭方和被动关闭方都从`ESTABLISHED`状态开始。
+* 双方都发送一个FIN，`ESTABLISHED`->`FIN_WAIT_1`
+* 都收到FIN，回复此FIN的ACK，`FIN_WAIT_1`->`CLOSING`
+  都收到ACK，`CLOSING`->'`TIME_WAIT`
+
+**TIME_WAIT的作用**
+1. 在TCP主动关闭方发送最后一个ACK时会进入`TIME_WAIT`而不是直接进入`CLOSED`，`TIME_WAIT`状态会保持2msl(2 maximun segment lifetime)的时长，一个msl是IP数据报在被接收前能够在网络中存活的最大时间。之所以要2msl的时间是考虑到：最后一个ACK丢失，被动方重传FIN，希望能收到ACK，这个过程完成的时间在极端情况下就是2msl
+**注意**：`TIME_WAIT`只是尽可能保证TCP全双工连接的终止，因为被动方重传的FIN也可能丢失，导致2msl过了被动方也没能收到此FIN的ACK
+2. TCP的一条连接由一个四元组(src_ip, src port, dst_ip, dst_port)标识，当处于`TIME_WAIT`时，此条连接会被定义为不可使用，这样就避免了一条连接关闭后能立即生成同一条连接，接收到上一次连接的分组。
+
+**避免TIME_WAIT**
+`SO_REUSEADDR`这个套接字选项允许分配处于`TIME_WAIT`的端口来建立TCP连接。这一点违背了TCP的最初规范，但是只要能保证不会收到上一条连接分组的干扰，就可以使用。
